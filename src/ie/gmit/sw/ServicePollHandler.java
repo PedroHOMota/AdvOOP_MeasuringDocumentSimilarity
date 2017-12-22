@@ -4,12 +4,14 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-public class ServicePollHandler extends HttpServlet {
+public class ServicePollHandler extends HttpServlet 
+{
 	public void init() throws ServletException {
 		ServletContext ctx = getServletContext();
 	}
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+	{
 		resp.setContentType("text/html"); 
 		PrintWriter out = resp.getWriter(); 
 		
@@ -42,7 +44,8 @@ public class ServicePollHandler extends HttpServlet {
 		out.print("</script>");
 	}
 
-	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
+	{
 		doGet(req, resp);
  	}
 }
