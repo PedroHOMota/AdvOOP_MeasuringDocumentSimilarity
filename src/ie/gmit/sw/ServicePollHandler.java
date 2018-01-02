@@ -46,6 +46,7 @@ public class ServicePollHandler extends HttpServlet
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
+		String file = req.getParameter("frmTxt");
 		doGet(req, resp);
  	}
 }

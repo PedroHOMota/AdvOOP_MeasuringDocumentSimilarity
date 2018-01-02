@@ -125,7 +125,9 @@ public class ServiceHandler extends HttpServlet {
 		 * read the document from memory... this might not be a good idea if the file size is large!
 		 */
 		out.print("<h3>Uploaded Document</h3>");	
-		out.print("<font color=\"0000ff\">");	
+		out.print("<font color=\"0000ff\">");
+		
+		TextFileParser.ParseFile(part.getInputStream());
 		BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()));
 		String line = null;
 		while ((line = br.readLine()) != null) {
