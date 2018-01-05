@@ -6,25 +6,32 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ShingleMaker 
 {
-	public static HashSet<Integer> MakeShingles(ArrayList<String> txtFile) throws IOException
+	public static HashSet<Integer> MakeShingles(ArrayList<String> txtFile,int SHINGLESIZE) throws IOException
 	{
 		ArrayList<String> parsedText = new ArrayList<String>();
-		int nRows=SHINGLEMAXLIST;
-		if(parsedText.size()<SHINGLEMAXLIST)
+		int nRows=SHINGLESIZE;
+		if(parsedText.size()<SHINGLESIZE)
 			nRows=parsedText.size();
 		
 		int i=0;
 		HashSet<Integer> hashShingle=new HashSet<>();
+		Pattern p = Pattern.compile("\\S+\\s*\\S+\\s*\\S+"); //Matches 3 words, 2 space,
+		
 		while(i<nRows)
 		{
-			String[] aux=parsedText.get(i).split("[ ]");
-			String shingleAux="";
-			shingleAux = aux[i]+aux[i+1]+aux[i+2];
-			hashShingle.add(shingleAux.hashCode());
-			i+=3;
+			Matcher m = p.matcher(parsedText.get(i));
+			
+			while(m.find())
+			{
+	            hashShingle.add(m.group(0).replaceAll("[ ]", "").toLowerCase().hashCode());
+	        }
+			
+			i++;
 		}
 		
 		return hashShingle;
