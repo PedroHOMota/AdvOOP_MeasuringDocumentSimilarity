@@ -18,7 +18,7 @@ public class DataBaseConnectorTest
 		db.close();
 	}
 	
-	private void insertDoc(String doc)
+	private void insertDoc(Document doc)
 	{
 		connectDB();
 		db.store(doc);
@@ -28,7 +28,7 @@ public class DataBaseConnectorTest
 	private ObjectSet search(long id)
 	{
 		connectDB();
-		ObjectSet result=db.queryByExample(new Document(id, null));
+		ObjectSet result=db.queryByExample(new Document(id));
 		return result;	
 	}
 }
