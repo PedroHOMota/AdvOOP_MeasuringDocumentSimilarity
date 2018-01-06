@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public class ShingleMaker 
 {
-	public static HashSet<Integer> MakeShingles(ArrayList<String> txtFile,int SHINGLESIZE) throws IOException
+	public static HashSet<String> MakeShingles(ArrayList<String> txtFile,int SHINGLESIZE) throws IOException
 	{
 		ArrayList<String> parsedText = new ArrayList<String>();
 		int nRows=SHINGLESIZE;
@@ -19,7 +19,7 @@ public class ShingleMaker
 			nRows=parsedText.size();
 		
 		int i=0;
-		HashSet<Integer> hashShingle=new HashSet<>();
+		HashSet<String> hashShingle=new HashSet<>();
 		Pattern p = Pattern.compile("\\S+\\s*\\S+\\s*\\S+"); //Matches 3 words, 2 space,
 		
 		while(i<nRows)
@@ -28,7 +28,7 @@ public class ShingleMaker
 			
 			while(m.find())
 			{
-	            hashShingle.add(m.group(0).replaceAll("[ ]", "").toLowerCase().hashCode());
+	            hashShingle.add(m.group(0).replaceAll("[ ]", "").toLowerCase());
 	        }
 			
 			i++;
