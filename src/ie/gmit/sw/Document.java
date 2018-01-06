@@ -1,19 +1,24 @@
 package ie.gmit.sw;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Document
 {
-	public long docID;
+	private String docName;
+	private long docID;
 	private HashSet<String> shingleList;
 	
-	public Document(long docID)
+	public Document(long docID,String docName)
 	{
+		this.docName = docName;
 		this.docID = docID;
 		this.shingleList = new HashSet<String>();
 	}
 
+	public String getDocName()
+	{
+		return docName;
+	}
 	public long getDocID() {
 		return docID;
 	}

@@ -32,7 +32,7 @@ public class SimilarityCalculator
 	
 	}
 	
-	private HashSet<Integer> CalculateMinHash(HashSet<String> document,int k) //Adapted from John's notes
+	private HashSet<Integer> CalculateMinHash(HashSet<String> document,float k) //Adapted from John's notes
 	{
 		HashSet<Integer> hashes = new HashSet<Integer>();
 		HashSet<Integer> shingles = new HashSet<Integer>();

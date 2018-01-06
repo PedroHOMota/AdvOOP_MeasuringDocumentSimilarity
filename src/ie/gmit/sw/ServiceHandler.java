@@ -1,6 +1,8 @@
 package ie.gmit.sw;
 
 import java.io.*;
+import java.util.HashSet;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
@@ -28,12 +30,18 @@ public class ServiceHandler extends HttpServlet {
 	 * here. Note that if you set the xml element <load-on-startup>1</load-on-startup>, this
 	 * method will be automatically fired by Tomcat when the web server itself is started.
 	 */
+	private static int SHINGLE_SIZE;
+	private static String DB_PATH;
+	private static int BLOCKINGQUEUE_SIZE;
+	private static DataBaseConnectorTest db;
+	
 	public void init() throws ServletException {
-		ServletContext ctx = getServletContext(); //The servlet context is the application itself.
+		ServletContext ctx = getServletContext();
+		SHINGLE_SIZE=Integer.parseInt(ctx.getInitParameter("SHINGLE_SIZE"));
+		BLOCKINGQUEUE_SIZE=Integer.parseInt(ctx.getInitParameter("BLOCKINGQUEUE_SIZE"));
+		DB_PATH=ctx.getInitParameter("BLOCKINGQUEUE_SIZE");
+		db=new DataBaseConnectorTest(ctx.getInitParameter("DB_PATH"));
 		
-		//Reads the value from the <context-param> in web.xml. Any application scope variables 
-		//defined in the web.xml can be read in as follows:
-		environmentalVariable = ctx.getInitParameter("SOME_GLOBAL_OR_ENVIRONMENTAL_VARIABLE"); 
 	}
 
 
@@ -127,15 +135,17 @@ public class ServiceHandler extends HttpServlet {
 		out.print("<h3>Uploaded Document</h3>");	
 		out.print("<font color=\"0000ff\">");
 		
-		TextFileParser.ParseFile(part.getInputStream());
-		BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()));
+		//Still need to save the shingles to the database
+		HashSet<String> hs=ShingleMaker.MakeShingles(TextFileParser.ParseFile(part.getInputStream()),SHINGLE_SIZE);
+		Document doc=new Document(1, title);
+		/*BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()));
 		String line = null;
 		while ((line = br.readLine()) != null) {
 			//Break each line up into shingles and do something. The servlet really should act as a
 			//contoller and dispatch this task to something else... Divide and conquer...! I've been
 			//telling you all this since 2nd year...!
 			out.print(line);
-		}
+		}*/
 		out.print("</font>");	
 	}
 

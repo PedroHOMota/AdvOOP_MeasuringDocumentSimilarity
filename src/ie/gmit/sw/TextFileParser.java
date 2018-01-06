@@ -19,7 +19,7 @@ public class TextFileParser
 		
 		while((line=reader.readLine())!=null)
 		{
-			parsedText.add(line.replaceAll("[^a-zA-Z]", ""));
+			parsedText.add(line.replaceAll("[^ 0-9a-zA-Z]", ""));
 		}
 		
 		return parsedText;

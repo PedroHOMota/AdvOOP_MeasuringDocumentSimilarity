@@ -18,17 +18,17 @@ public class DataBaseConnectorTest
 		db.close();
 	}
 	
-	private void insertDoc(Document doc)
+	public void insertDoc(Document doc)
 	{
 		connectDB();
 		db.store(doc);
 		db.close();
 	}
 	
-	private ObjectSet search(long id)
+	public ObjectSet search(long id)
 	{
 		connectDB();
-		ObjectSet result=db.queryByExample(new Document(id));
+		ObjectSet result=db.queryByExample(new Document(id,""));
 		return result;	
 	}
 }

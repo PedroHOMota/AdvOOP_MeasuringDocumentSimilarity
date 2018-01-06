@@ -6,8 +6,17 @@ import javax.servlet.http.*;
 
 public class ServicePollHandler extends HttpServlet 
 {
+	private int SHINGLELIST_SIZE;
+	private int SHINGLE_SIZE;
+	private String DB_PATH;
+	private int BLOCKINGQUEUE_SIZE;
+	
 	public void init() throws ServletException {
 		ServletContext ctx = getServletContext();
+		SHINGLELIST_SIZE=Integer.parseInt(ctx.getInitParameter("SHINGLELIST_SIZE"));
+		SHINGLE_SIZE=Integer.parseInt(ctx.getInitParameter("SHINGLE_SIZE"));
+		BLOCKINGQUEUE_SIZE=Integer.parseInt(ctx.getInitParameter("BLOCKINGQUEUE_SIZE"));
+		DB_PATH=ctx.getInitParameter("BLOCKINGQUEUE_SIZE");
 	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
@@ -46,7 +55,6 @@ public class ServicePollHandler extends HttpServlet
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException 
 	{
-		String file = req.getParameter("frmTxt");
 		doGet(req, resp);
  	}
 }
