@@ -13,22 +13,18 @@ public class ShingleMaker
 {
 	public static HashSet<String> MakeShingles(ArrayList<String> txtFile,int SHINGLESIZE) throws IOException
 	{
-		ArrayList<String> parsedText = new ArrayList<String>();
-		int nRows=SHINGLESIZE;
-		if(parsedText.size()<SHINGLESIZE)
-			nRows=parsedText.size();
 		
 		int i=0;
 		HashSet<String> hashShingle=new HashSet<>();
 		Pattern p = Pattern.compile("\\S+\\s*\\S+\\s*\\S+"); //Matches 3 words, 2 space,
 		
-		while(i<nRows)
+		while(i<txtFile.size())
 		{
-			Matcher m = p.matcher(parsedText.get(i));
+			Matcher m = p.matcher(txtFile.get(i));
 			
 			while(m.find())
 			{
-	            hashShingle.add(m.group(0).replaceAll("[ ]", "").toLowerCase());
+				hashShingle.add(m.group(0).replaceAll("[ ]", "").toLowerCase());
 	        }
 			
 			i++;

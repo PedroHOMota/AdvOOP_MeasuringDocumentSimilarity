@@ -4,11 +4,11 @@ import com.db4o.Db4o;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
 
-public class DataBaseConnectorTest
+public class DataBaseConnector
 {
 	private static DataBase db=null;
 	
-	DataBaseConnectorTest(String dbPath)
+	DataBaseConnector(String dbPath)
 	{
 		db=DataBase.getInstance(dbPath);
 	}
@@ -19,6 +19,6 @@ public class DataBaseConnectorTest
 	
 	public ObjectSet search(long id)
 	{
-		return db.search(id);
+		return db.searchAll();
 	}
 }

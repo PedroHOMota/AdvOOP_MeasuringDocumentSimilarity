@@ -23,23 +23,23 @@ public class ServiceHandler extends HttpServlet {
 	private static int SHINGLE_SIZE;
 	private static String DB_PATH;
 	//private static int BLOCKINGQUEUE_SIZE;
-	private static DataBaseConnectorTest db;
+	private static DataBaseConnector db;
 	private static LinkedBlockingQueue<Document> inQueue;
-	private static LinkedBlockingQueue<Document> outQueue; 
+	private static LinkedBlockingQueue<String[]> outQueue; 
 	private static ExecutorService threadPool;
 	private static boolean keepAlive=true;
 	public void init() throws ServletException {
 		ServletContext ctx = getServletContext();
 		SHINGLE_SIZE=Integer.parseInt(ctx.getInitParameter("SHINGLE_SIZE"));
-		DB_PATH=ctx.getInitParameter("BLOCKINGQUEUE_SIZE");
-		db=new DataBaseConnectorTest();
-		db.setdbPath(ctx.getInitParameter("DB_PATH"));
+		//DB_PATH=ctx.getInitParameter("BLOCKINGQUEUE_SIZE");
+		DB_PATH=ctx.getInitParameter("DB_PATH");
+		db=new DataBaseConnector(DB_PATH);
 		inQueue = new LinkedBlockingQueue<>(Integer.parseInt(ctx.getInitParameter("BLOCKINGQUEUE_SIZE")));
 		outQueue = new LinkedBlockingQueue<>(); 
 		threadPool = Executors.newFixedThreadPool(Integer.parseInt(ctx.getInitParameter("THREADPOOL_SIZE")));
 		
 		
-		/*for (int i = 0; i < Integer.parseInt(ctx.getInitParameter("THREADPOOL_SIZE")); i++) 
+		for (int i = 0; i < Integer.parseInt(ctx.getInitParameter("THREADPOOL_SIZE")); i++) 
 		{
 			threadPool.execute(new Runnable()
 			{
@@ -47,13 +47,30 @@ public class ServiceHandler extends HttpServlet {
 				{
 					while(keepAlive)
 					{
-						Document doc=inQueue.take();
-						ob
-						CalculateJaccardDistance()
-						CalculateSimilarityMinHash()
+						System.out.println(this.toString()+" is runining");
+						Document doc;
+						try {
+							System.out.println("Taking from queue");
+							
+							doc = inQueue.take();
+							System.out.println("Preocessing request");
+							String[] a=Facade.CalculateSimilarity(doc.getShingleList(), doc.getDocID(),DB_PATH);
+							outQueue.put(a);
+							for(String n : a)
+							{
+								System.out.println("SIMILARITY: "+n);
+							}
+							System.out.println("Saving to db");
+							Facade.SaveDocumentToDatabase(doc);
+							System.out.println("Saved");
+							
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						
 					}
 				}
-			});*/
+			});
 					
 		}
 
@@ -89,27 +106,29 @@ public class ServiceHandler extends HttpServlet {
 			Document doc=new Document(jobNumber, title);
 			doc.setShingleList(hs);
 			*/
-			inQueue.put(Facade.doCompute(part.getInputStream(), jobNumber, title, SHINGLE_SIZE));
-			//Add job to in-queue
+			try {
+				Document doc=Facade.doComputeTextFile(part.getInputStream(), jobNumber, title, SHINGLE_SIZE);
+				inQueue.put(doc);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		else
 		{
 			RequestDispatcher dispatcher = req.getRequestDispatcher("/poll");
 			if(outQueue.contains(taskNumber));
 			{
-				for(Iterator<Document> it = outQueue.iterator(); it.hasNext())
+				Iterator it = outQueue.iterator();
+				while(it.hasNext())
 				{
-					Document doc = it.next();
-					if(doc.getDocID()==Integer.parseInt(taskNumber))
+					String[] doc = (String[]) it.next();
+					if(doc[0]==taskNumber)
 					{
-						Facade.SaveDocumentToDatabase(doc);
-						req.setAttribute("calculated", "");
+						req.setAttribute("calculated", doc);
 						it.remove();
 						break;
 					}
 				}
-				//Document doc=outQueue.iterator()
-				//Facade.SaveDocumentToDatabase(doc);
 			}
 			dispatcher.forward(req,resp);
 			//Check out-queue for finished job with the given taskNumber
@@ -152,29 +171,10 @@ public class ServiceHandler extends HttpServlet {
 		out.print("var wait=setTimeout(\"document.frmRequestDetails.submit();\", 10000);"); //Refresh every 10 seconds
 		out.print("</script>");
 		
-		
-			
-		/* File Upload: The following few lines read the multipart/form-data from an instance of the
-		 * interface Part that is accessed by Part part = req.getPart("txtDocument"). We can read 
-		 * bytes or arrays of bytes by calling read() on the InputStream of the Part object. In this
-		 * case, we are only interested in text files, so it's as easy to buffer the bytes as characters
-		 * to enable the servlet to read the uploaded file line-by-line. Note that the uplaod action
-		 * can be easily completed by writing the file to disk if necessary. The following lines just
-		 * read the document from memory... this might not be a good idea if the file size is large!
-		 */
 		out.print("<h3>Uploaded Document</h3>");	
 		out.print("<font color=\"0000ff\">");
 		
-		//Still need to save the shingles to the database
 		
-		/*BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()));
-		String line = null;
-		while ((line = br.readLine()) != null) {
-			//Break each line up into shingles and do something. The servlet really should act as a
-			//contoller and dispatch this task to something else... Divide and conquer...! I've been
-			//telling you all this since 2nd year...!
-			out.print(line);
-		}*/
 		out.print("</font>");	
 	}
 

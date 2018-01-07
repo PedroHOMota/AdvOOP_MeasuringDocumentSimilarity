@@ -7,32 +7,32 @@ import java.util.TreeSet;
 public class SimilarityCalculator 
 {
 
-	public float CalculateJaccardDistance(HashSet<Integer> newDocument,HashSet<Integer> documentOnDB)
+	public static float CalculateJaccardDistance(HashSet<String> newDocument,HashSet<String> documentOnDB)
 	{
 		float currentsize=newDocument.size();
 		newDocument.retainAll(documentOnDB); //modifies the hashset calling emoving what is not on the other set
 										//DO this against set from db
-		
+		System.out.println(newDocument);
 		return newDocument.size()/(currentsize+documentOnDB.size()-newDocument.size());
 	
 	}
 	
-	public float CalculateSimilarityMinHash(HashSet<Integer> newDocument,HashSet<Integer> documentOnDB,float k)
+	public static float CalculateSimilarityMinHash(HashSet<String> newDocument,HashSet<String> documentOnDB,float k)
 	{
-		HashSet<Integer> hashes = new HashSet<Integer>(newDocument); //Use of the hashse as it has a O(1) complexity
+		HashSet<String> hashes = new HashSet<String>(newDocument); //Use of the hashse as it has a O(1) complexity
 													 //After the shingles are made the order they appear on the set doesn't matter
 													//As all shingle will be compareted to each other
-		hashes.retainAll(documentOnDB);
+		//hashes.retainAll(documentOnDB);
 		
-		newDocument=CalculateMinHash(newDocument, k);
-		documentOnDB=CalculateMinHash(documentOnDB, k);
+		HashSet<Integer> nD=CalculateMinHash(newDocument, k);
+		HashSet<Integer> dOnDb=CalculateMinHash(documentOnDB, k);
 		
-		newDocument.retainAll(documentOnDB);
-		return newDocument.size()/k;
+		nD.retainAll(dOnDb);
+		return nD.size()/k;
 	
 	}
 	
-	private HashSet<Integer> CalculateMinHash(HashSet<String> document,float k) //Adapted from John's notes
+	private static HashSet<Integer> CalculateMinHash(HashSet<String> document,float k) //Adapted from John's notes
 	{
 		HashSet<Integer> hashes = new HashSet<Integer>();
 		HashSet<Integer> shingles = new HashSet<Integer>();

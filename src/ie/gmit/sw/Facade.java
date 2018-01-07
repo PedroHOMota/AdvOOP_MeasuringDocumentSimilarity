@@ -2,6 +2,7 @@ package ie.gmit.sw;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -9,7 +10,7 @@ import com.db4o.ObjectSet;
 
 public class Facade 
 {
-	private static DataBaseConnectorTest db=new DataBaseConnectorTest();
+	private static DataBaseConnector db;
 	
 	public static Document doComputeTextFile(InputStream txtFile,long jobNumber,String title,int SHINGLE_SIZE) throws IOException
 	{
@@ -19,24 +20,39 @@ public class Facade
 		
 		return doc;
 	}
-	public static void CalculateSimilarity(HashSet<String> doc,final float k) //Spawns a new thread to calculate the jaccard distance and minhash for each document
+	public static String[] CalculateSimilarity(HashSet<String> doc,long docID,String dbP) //Spawns a new thread to calculate the jaccard distance and minhash for each document
 	{
+		if(db==null)
+			db=new DataBaseConnector(dbP);
+		
 		ObjectSet o = db.search(1);
 		LinkedBlockingQueue<Integer> q=new LinkedBlockingQueue<>();
-		final HashSet<String> newDocument=doc;
+		HashSet<String> newDocument=doc;
+		String[] result= new String[o.size()];
+		int i=0;
+		
+		if(o.size()==0)
+		{
+			result = new String[1];
+			result[0] = "No document on DB to compare to";		
+		}
 		while(o.hasNext())
 		{
-			final Document d = (Document) o.next();
+			Document d = (Document) o.next();
 			
-			new Thread() 
+			/*new Thread() 
 			{
 				public void run()
-				{
+				{*/
 					float jaccard=SimilarityCalculator.CalculateJaccardDistance(newDocument, d.getShingleList());
-					float minHash=SimilarityCalculator.CalculateSimilarityMinHash(newDocument, d.getShingleList(),k);
-				}
-			}.start();
+					float minHash=SimilarityCalculator.CalculateSimilarityMinHash(newDocument, d.getShingleList(),1/jaccard);
+					System.out.println("Jaccard: "+jaccard+"/nMinHash: "+minHash);
+					result[i]="Jaccard: "+jaccard+"/nMinHash: "+minHash;	
+				/*}
+			}.start();*/
 		}
+		
+		return result;
 	}
 	public static void SaveDocumentToDatabase(Document doc)
 	{
