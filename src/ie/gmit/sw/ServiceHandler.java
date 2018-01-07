@@ -1,7 +1,9 @@
 package ie.gmit.sw;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -21,7 +23,6 @@ public class ServiceHandler extends HttpServlet {
 	 *   2) An Chain of Responsibility: declare the initial handler or a full chain object
 	 *   1) A Proxy: Declare a shared proxy here and a request proxy inside doGet()
 	 */
-	private String environmentalVariable = null; //Demo purposes only. Rename this variable to something more appropriate
 	private static long jobNumber = 0;
 
 
@@ -32,15 +33,19 @@ public class ServiceHandler extends HttpServlet {
 	 */
 	private static int SHINGLE_SIZE;
 	private static String DB_PATH;
-	private static int BLOCKINGQUEUE_SIZE;
+	//private static int BLOCKINGQUEUE_SIZE;
 	private static DataBaseConnectorTest db;
+	LinkedBlockingQueue<Document> inQueue;
+	LinkedBlockingQueue<HashMap<String,String>> outQueue; 
 	
 	public void init() throws ServletException {
 		ServletContext ctx = getServletContext();
 		SHINGLE_SIZE=Integer.parseInt(ctx.getInitParameter("SHINGLE_SIZE"));
-		BLOCKINGQUEUE_SIZE=Integer.parseInt(ctx.getInitParameter("BLOCKINGQUEUE_SIZE"));
 		DB_PATH=ctx.getInitParameter("BLOCKINGQUEUE_SIZE");
-		db=new DataBaseConnectorTest(ctx.getInitParameter("DB_PATH"));
+		db=new DataBaseConnectorTest();
+		db.setdbPath(ctx.getInitParameter("DB_PATH"));
+		inQueue = new LinkedBlockingQueue<>(Integer.parseInt(ctx.getInitParameter("BLOCKINGQUEUE_SIZE")));
+		outQueue = new LinkedBlockingQueue<>(); 
 		
 	}
 
@@ -74,12 +79,23 @@ public class ServiceHandler extends HttpServlet {
 		out.print("<body>");
 		
 		//We could use the following to track asynchronous tasks. Comment it out otherwise...
-		if (taskNumber == null){
+		if (taskNumber == null)
+		{
 			taskNumber = new String("T" + jobNumber);
 			jobNumber++;
+			/*Facade fc= new Facade();
+			HashSet<String> hs=ShingleMaker.MakeShingles(TextFileParser.ParseFile(part.getInputStream()),SHINGLE_SIZE);
+			Document doc=new Document(jobNumber, title);
+			doc.setShingleList(hs);
+			*/
+			inQueue.add(Facade.doCompute(part.getInputStream(), jobNumber, title, SHINGLE_SIZE));
 			//Add job to in-queue
-		}else{
+		}
+		else
+		{
 			RequestDispatcher dispatcher = req.getRequestDispatcher("/poll");
+			if(outQueue.contains(taskNumber));
+				req.setAttribute("calculated", "");
 			dispatcher.forward(req,resp);
 			//Check out-queue for finished job with the given taskNumber
 		}
@@ -92,7 +108,6 @@ public class ServiceHandler extends HttpServlet {
 		//Output some useful information for you (yes YOU!)
 		out.print("<div id=\"r\"></div>");
 		out.print("<font color=\"#993333\"><b>");
-		out.print("Environmental Variable Read from web.xml: " + environmentalVariable);
 		out.print("<br>This servlet should only be responsible for handling client request and returning responses. Everything else should be handled by different objects.");
 		out.print("Note that any variables declared inside this doGet() method are thread safe. Anything defined at a class level is shared between HTTP requests.");				
 		out.print("</b></font>");
@@ -136,8 +151,7 @@ public class ServiceHandler extends HttpServlet {
 		out.print("<font color=\"0000ff\">");
 		
 		//Still need to save the shingles to the database
-		HashSet<String> hs=ShingleMaker.MakeShingles(TextFileParser.ParseFile(part.getInputStream()),SHINGLE_SIZE);
-		Document doc=new Document(1, title);
+		
 		/*BufferedReader br = new BufferedReader(new InputStreamReader(part.getInputStream()));
 		String line = null;
 		while ((line = br.readLine()) != null) {
