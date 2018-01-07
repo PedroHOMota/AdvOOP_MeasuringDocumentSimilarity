@@ -6,11 +6,21 @@ import com.db4o.ObjectSet;
 
 public class DataBaseConnectorTest
 {
-	private ObjectContainer db = null;	
+	private static void db
+	private ObjectContainer queryResult = null;	
+	private static String dbPath="";
 	
+	DataBaseConnectorTest(String dbPath)
+	{
+		this.dbPath=dbPath;
+	}
+	/*public void setdbPath(String path) 
+	{
+		dbPath=path;
+	}*/
 	private void connectDB()
 	{
-		db= Db4o.openFile("jaccardDB");
+		db= Db4o.openFile(dbPath);
 	}
 	
 	private void closeDB()
