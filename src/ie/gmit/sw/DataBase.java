@@ -3,6 +3,7 @@ package ie.gmit.sw;
 import com.db4o.Db4o;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
+import com.db4o.query.Query;
 
 public class DataBase //Singleton
 {
@@ -28,12 +29,16 @@ public class DataBase //Singleton
 	public void insertDoc(Document doc)
 	{
 		dbo.store(doc);
+		dbo.commit();
 	}
 	
-	public ObjectSet search(long id)
+	public ObjectSet searchAll()
 	{
-		ObjectSet result=dbo.queryByExample(new Document(id,""));
-		return result;	
+		Query query = dbo.query();
+		query.constrain(Document.class);
+		ObjectSet<Document> result = query.execute();
+		return result;
+		
 	}
 
 }
