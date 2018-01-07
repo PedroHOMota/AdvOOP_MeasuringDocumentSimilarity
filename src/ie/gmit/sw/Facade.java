@@ -6,6 +6,8 @@ import java.util.HashSet;
 
 public class Facade 
 {
+	private static DataBaseConnectorTest db=new DataBaseConnectorTest();
+	
 	public static Document doCompute(InputStream txtFile,long jobNumber,String title,int SHINGLE_SIZE) throws IOException
 	{
 		HashSet<String> hs=ShingleMaker.MakeShingles(TextFileParser.ParseFile(txtFile),SHINGLE_SIZE);
@@ -13,5 +15,9 @@ public class Facade
 		doc.setShingleList(hs);
 		
 		return doc;
+	}
+	public static void SaveDocumentToDatabase(Document doc)
+	{
+		db.insertDoc(doc);
 	}
 }
