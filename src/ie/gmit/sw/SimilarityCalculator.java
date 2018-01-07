@@ -19,29 +19,33 @@ public class SimilarityCalculator
 	
 	public static float CalculateSimilarityMinHash(HashSet<String> newDocument,HashSet<String> documentOnDB,float k)
 	{
-		HashSet<String> hashes = new HashSet<String>(newDocument); //Use of the hashse as it has a O(1) complexity
+		//HashSet<String> hashes = new HashSet<String>(newDocument); //Use of the hashse as it has a O(1) complexity
 													 //After the shingles are made the order they appear on the set doesn't matter
 													//As all shingle will be compareted to each other
 		//hashes.retainAll(documentOnDB);
 		
-		HashSet<Integer> nD=CalculateMinHash(newDocument, k);
-		HashSet<Integer> dOnDb=CalculateMinHash(documentOnDB, k);
-		
-		nD.retainAll(dOnDb);
-		return nD.size()/k;
-	
-	}
-	
-	private static HashSet<Integer> CalculateMinHash(HashSet<String> document,float k) //Adapted from John's notes
-	{
 		HashSet<Integer> hashes = new HashSet<Integer>();
-		HashSet<Integer> shingles = new HashSet<Integer>();
-		
 		Random r = new Random();
 		for (int i = 0; i < k; i++)
 		{ //Create k random integers
 			hashes.add(r.nextInt());
 		}
+		
+		HashSet<Integer> nD=CalculateMinHash(newDocument, hashes);
+		HashSet<Integer> dOnDb=CalculateMinHash(documentOnDB, hashes);
+		for(int i:nD)
+		{
+			System.out.println(i);
+		}
+		nD.retainAll(dOnDb);
+		return nD.size()/k;
+	
+	}
+	
+	private static HashSet<Integer> CalculateMinHash(HashSet<String> document,HashSet<Integer> hashes) //Adapted from John's notes
+	{
+		HashSet<Integer> shingles = new HashSet<Integer>();
+		
 		//XOR the integer word values with the hashes
 		for (Integer hash : hashes)
 		{
