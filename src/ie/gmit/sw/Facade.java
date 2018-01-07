@@ -20,14 +20,14 @@ public class Facade
 		
 		return doc;
 	}
-	public static String[] CalculateSimilarity(HashSet<String> doc,long docID,String dbP) //Spawns a new thread to calculate the jaccard distance and minhash for each document
+	public static String[] CalculateSimilarity(HashSet<String> doc,long docID,String dbP, long K_SHINGLESIZE) //Spawns a new thread to calculate the jaccard distance and minhash for each document
 	{
 		if(db==null)
 			db=new DataBaseConnector(dbP);
 		
 		ObjectSet o = db.search(1);
 		LinkedBlockingQueue<Integer> q=new LinkedBlockingQueue<>();
-		HashSet<String> newDocument=doc;
+		HashSet<String> newDocument=(HashSet<String>) doc.clone();
 		String[] result= new String[o.size()];
 		int i=0;
 		
@@ -45,7 +45,7 @@ public class Facade
 				public void run()
 				{*/
 					float jaccard=SimilarityCalculator.CalculateJaccardDistance(newDocument, d.getShingleList());
-					float minHash=SimilarityCalculator.CalculateSimilarityMinHash(newDocument, d.getShingleList(),1/jaccard);
+					float minHash=SimilarityCalculator.CalculateSimilarityMinHash(newDocument, d.getShingleList(),K_SHINGLESIZE);
 					System.out.println("Jaccard: "+jaccard+"/nMinHash: "+minHash);
 					result[i]="Jaccard: "+jaccard+"/nMinHash: "+minHash;	
 				/*}

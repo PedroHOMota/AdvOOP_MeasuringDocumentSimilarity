@@ -16,7 +16,7 @@ import javax.servlet.annotation.*;
 @MultipartConfig(fileSizeThreshold=1024*1024*2, // 2MB. The file size in bytes after which the file will be temporarily stored on disk. The default size is 0 bytes.
                  maxFileSize=1024*1024*10,      // 10MB. The maximum size allowed for uploaded files, in bytes
                  maxRequestSize=1024*1024*50)   // 50MB. he maximum size allowed for a multipart/form-data request, in bytes.
-public class ServiceHandler extends HttpServlet {
+public class ServiceHandler2Testing extends HttpServlet {
 	
 	private static long jobNumber = 0;
 
@@ -25,8 +25,7 @@ public class ServiceHandler extends HttpServlet {
 	//private static int BLOCKINGQUEUE_SIZE;
 	private static DataBaseConnector db;
 	private static LinkedBlockingQueue<Document> inQueue;
-	private static LinkedBlockingQueue<String[]> outQueue;
-	private static SingletonMessaging sm;
+	private static LinkedBlockingQueue<String[]> outQueue; 
 	private static ExecutorService threadPool;
 	private static long K_SHINGLESIZE;
 	private static boolean keepAlive=true;
@@ -37,9 +36,8 @@ public class ServiceHandler extends HttpServlet {
 		//DB_PATH=ctx.getInitParameter("BLOCKINGQUEUE_SIZE");
 		DB_PATH=ctx.getInitParameter("DB_PATH");
 		db=new DataBaseConnector(DB_PATH);
-		/*inQueue = new LinkedBlockingQueue<>(Integer.parseInt(ctx.getInitParameter("BLOCKINGQUEUE_SIZE")));*/
+		inQueue = new LinkedBlockingQueue<>(Integer.parseInt(ctx.getInitParameter("BLOCKINGQUEUE_SIZE")));
 		outQueue = new LinkedBlockingQueue<>(); 
-		sm= SingletonMessaging.getInstance(Integer.parseInt(ctx.getInitParameter("BLOCKINGQUEUE_SIZE")));
 		threadPool = Executors.newFixedThreadPool(Integer.parseInt(ctx.getInitParameter("THREADPOOL_SIZE")));
 		
 		
@@ -56,12 +54,11 @@ public class ServiceHandler extends HttpServlet {
 						try {
 							System.out.println("Taking from queue");
 							
-							//doc = inQueue.take();
-							doc=sm.takeInQ();
+							doc = inQueue.take();
 							System.out.println("Preocessing request");
-							String[] d=Facade.CalculateSimilarity(doc.getShingleList(), doc.getDocID(),DB_PATH,K_SHINGLESIZE);
-							sm.putOutQ(d);
-							for(String n : d)
+							String[] a=Facade.CalculateSimilarity(doc.getShingleList(), doc.getDocID(),DB_PATH,K_SHINGLESIZE);
+							outQueue.put(a);
+							for(String n : a)
 							{
 								System.out.println("SIMILARITY: "+n);
 							}
@@ -113,7 +110,7 @@ public class ServiceHandler extends HttpServlet {
 			*/
 			try {
 				Document doc=Facade.doComputeTextFile(part.getInputStream(), jobNumber, title, SHINGLE_SIZE);
-				sm.putInQ(doc);//inQueue.put(doc);
+				inQueue.put(doc);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
