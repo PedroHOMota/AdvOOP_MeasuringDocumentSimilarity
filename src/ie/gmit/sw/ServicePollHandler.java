@@ -29,7 +29,7 @@ public class ServicePollHandler extends HttpServlet
 		String title = req.getParameter("txtTitle");
 		String taskNumber = req.getParameter("frmTaskNumber");
 		int counter = 1;
-		String rspBody="Preocessing";
+		String rspBody="Preocessing...";
 		String[] similarity;
 		out.print("<html><head><title>A JEE Application for Measuring Document Similarity</title>");		
 		out.print("</head>");		
@@ -37,19 +37,26 @@ public class ServicePollHandler extends HttpServlet
 		
 		try 
 		{
-			similarity=sm.takeOutQ(taskNumber);
-			if(similarity==null)
+			similarity=sm.takeOutQ(Long.parseLong(taskNumber));
+			for (int i = 0; i < similarity.length; i++) 
 			{
-				rspBody="<table style=\"width:100%\">";
+				System.out.println(similarity[i]);
+			}
+			if(similarity!=null)
+			{
+				rspBody="<style> table, th, td {\n border: 1px solid black; border-collapse: collapse;} </style>";
+				rspBody+="<table style=\"width:70%\">";
 				rspBody+="<tr>\n" + 
 						"    <th>File Name</th>\n" + 
 						"    <th>Similarity</th> \n" + 
 						"  </tr>";
 				for (int i = 1; i < similarity.length; i++) 
 				{
+					String[] aux=similarity[i].split("\\s\\s");
+					System.out.println("Name: "+aux[0]+" P: "+aux[1]);
 					rspBody+="<tr>\n" + 
-							"    <td>"+Jill+"</td>\n" + 
-							"    <td>"+Smith+"</td> \n" + 
+							"    <td>"+aux[0]+"</td>\n" + 
+							"    <td align=\"center\">"+aux[1]+"</td> \n" + 
 							"  </tr>";
 				}
 				rspBody+="</table>";
@@ -64,7 +71,7 @@ public class ServicePollHandler extends HttpServlet
 		out.print("<H3>Document Title: " + title + "</H3>");
 		//out.print("<b><font color=\"ff0000\">A total of " + counter + " polls have been made for this request.</font></b> ");
 		//out.print("Place the final response here... a nice table (or graphic!) of the document similarity...");
-		out.print(req.getParameter("calculated"));
+		out.print(rspBody);
 		out.print("<form name=\"frmRequestDetails\">");
 		out.print("<input name=\"txtTitle\" type=\"hidden\" value=\"" + title + "\">");
 		out.print("<input name=\"frmTaskNumber\" type=\"hidden\" value=\"" + taskNumber + "\">");
