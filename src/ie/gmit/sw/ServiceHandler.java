@@ -126,11 +126,7 @@ public class ServiceHandler extends HttpServlet {
 		out.print("var wait=setTimeout(\"document.frmRequestDetails.submit();\", 10000);"); //Refresh every 10 seconds
 		out.print("</script>");
 		
-		out.print("<h3>Uploaded Document</h3>");	
-		out.print("<font color=\"0000ff\">");
 		
-		
-		out.print("</font>");	
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
