@@ -1,11 +1,13 @@
 package ie.gmit.sw;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class SingletonMessaging
 {
 	private static LinkedBlockingQueue<Document> inQueue;
-	private static LinkedBlockingQueue<String[]> outQueue; 
+	private static ConcurrentMap<Long,String[]> outQueue; 
 	
 	private static SingletonMessaging sm=null;
 	private SingletonMessaging() {}
@@ -16,7 +18,7 @@ public class SingletonMessaging
 		{
 			sm = new SingletonMessaging();
 			inQueue = new LinkedBlockingQueue<>(queueSize);
-			outQueue = new LinkedBlockingQueue<>(); 
+			outQueue = new ConcurrentHashMap<Long,String[]>();
 		}
 		
 		return sm;
@@ -34,17 +36,15 @@ public class SingletonMessaging
 	
 	public String[] takeOutQ(String jobID) throws InterruptedException //Return null if cant find the job on queue
 	{
-		for(String[] aux:outQueue)
-		{
-			if(aux[0]==jobID)
-				return aux;
-		}
+		if(outQueue.containsKey(jobID))
+			return outQueue.get(jobID);
+		
 		return null;
 	}
 	
-	public void putOutQ(String[] d) throws InterruptedException
+	public void putOutQ(Long jobID,String[] d) throws InterruptedException
 	{
-		outQueue.put(d);
+		outQueue.putIfAbsent(jobID, d);
 	}
 	
 	
