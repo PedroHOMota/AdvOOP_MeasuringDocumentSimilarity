@@ -45,7 +45,7 @@ public class ServicePollHandler extends HttpServlet
 			if(similarity!=null)
 			{
 				rspBody="<style> table, th, td {\n border: 1px solid black; border-collapse: collapse;} </style>";
-				rspBody+="<table style=\"width:70%\">";
+				rspBody+="<table id=\"table\" style=\"width:70%\">";
 				rspBody+="<tr>\n" + 
 						"    <th>File Name</th>\n" + 
 						"    <th>Similarity</th> \n" + 
@@ -75,12 +75,17 @@ public class ServicePollHandler extends HttpServlet
 		out.print("<form name=\"frmRequestDetails\">");
 		out.print("<input name=\"txtTitle\" type=\"hidden\" value=\"" + title + "\">");
 		out.print("<input name=\"frmTaskNumber\" type=\"hidden\" value=\"" + taskNumber + "\">");
-		out.print("</form>");								
+		out.print("</form>");
+		out.print("&nbsp");
+		out.print("<a href=\"index.jsp\">Check another document</a>\n");
 		out.print("</body>");	
 		out.print("</html>");	
 		
 		out.print("<script>");
-		out.print("var wait=setTimeout(\"document.frmRequestDetails.submit();\", 5000);"); //Refresh every 5 seconds
+		out.print("var if(document.getElementById().length)\n" + 
+				"		wait = null;\n" + 
+				"	else\n" + 
+				"		var wait=setTimeout(\"document.frmRequestDetails.submit();\", 5000);"); //Refresh every 5 seconds
 		out.print("</script>");
 	}
 
