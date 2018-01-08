@@ -31,6 +31,7 @@ public class ServicePollHandler extends HttpServlet
 		int counter = 1;
 		String rspBody="Preocessing...";
 		String[] similarity;
+		//Look here
 		out.print("<html><head><title>A JEE Application for Measuring Document Similarity</title>");		
 		out.print("</head>");		
 		out.print("<body>");

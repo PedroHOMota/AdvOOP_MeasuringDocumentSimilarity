@@ -34,16 +34,21 @@ public class SingletonMessaging
 		inQueue.put(d);
 	}
 	
-	public String[] takeOutQ(String jobID) throws InterruptedException //Return null if cant find the job on queue
+	public String[] takeOutQ(Long jobID) throws InterruptedException //Return null if cant find the job on queue
 	{
+		System.out.println("Retrieve: "+jobID);
 		if(outQueue.containsKey(jobID))
-			return outQueue.get(jobID);
+		{
+			String[] aux = outQueue.get(jobID);
+			return aux;
+		}
 		
 		return null;
 	}
 	
 	public void putOutQ(Long jobID,String[] d) throws InterruptedException
 	{
+		System.out.println("Insert: "+jobID);
 		outQueue.putIfAbsent(jobID, d);
 	}
 	

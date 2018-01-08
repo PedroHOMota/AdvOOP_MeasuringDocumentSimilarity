@@ -58,12 +58,13 @@ public class ServiceHandler extends HttpServlet {
 							
 							//doc = inQueue.take();
 							doc=sm.takeInQ();
+							System.out.println(doc.getDocID());
 							System.out.println("Preocessing request");
 							String[] d=Facade.CalculateSimilarity(doc.getShingleList(), doc.getDocID(),DB_PATH,K_SHINGLESIZE);
-							sm.putOutQ(d);
-							for(String n : d)
+							sm.putOutQ(doc.getDocID(),d);
+							for (int j = 1; j < d.length; j++)
 							{
-								System.out.println("SIMILARITY: "+n);
+								System.out.println("SIMILARITY: "+d[j]);
 							}
 							System.out.println("Saving to db");
 							Facade.SaveDocumentToDatabase(doc);
@@ -83,87 +84,37 @@ public class ServiceHandler extends HttpServlet {
 	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//Step 1) Write out the MIME type
 		resp.setContentType("text/html"); 
 		
-		//Step 2) Get a handle on the PrintWriter to write out HTML
 		PrintWriter out = resp.getWriter(); 
 		
-		//Step 3) Get any submitted form data. These variables are local to this method and thread safe...
 		String title = req.getParameter("txtTitle");
 		String taskNumber = req.getParameter("frmTaskNumber");
 		Part part = req.getPart("txtDocument");
 
-		
-		//Step 4) Process the input and write out the response. 
-		//The following string should be extracted as a context from web.xml 
 		out.print("<html><head><title>A JEE Application for Measuring Document Similarity</title>");		
 		out.print("</head>");		
 		out.print("<body>");
 		
-		//We could use the following to track asynchronous tasks. Comment it out otherwise...
 		if (taskNumber == null)
 		{
-			taskNumber = new String("T" + jobNumber);
-			jobNumber++;
-			/*Facade fc= new Facade();
-			HashSet<String> hs=ShingleMaker.MakeShingles(TextFileParser.ParseFile(part.getInputStream()),SHINGLE_SIZE);
-			Document doc=new Document(jobNumber, title);
-			doc.setShingleList(hs);
-			*/
+			taskNumber = Long.toString(jobNumber);
 			try {
 				Document doc=Facade.doComputeTextFile(part.getInputStream(), jobNumber, title, SHINGLE_SIZE);
 				sm.putInQ(doc);//inQueue.put(doc);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			jobNumber++;
+			
 		}
-		else
-		{
-			RequestDispatcher dispatcher = req.getRequestDispatcher("/poll");
-			if(outQueue.contains(taskNumber));
-			{
-				Iterator it = outQueue.iterator();
-				while(it.hasNext())
-				{
-					String[] doc = (String[]) it.next();
-					if(doc[0]==taskNumber)
-					{
-						req.setAttribute("calculated", doc);
-						it.remove();
-						break;
-					}
-				}
-			}
-			dispatcher.forward(req,resp);
-			//Check out-queue for finished job with the given taskNumber
-		}
-		
-		//Output some headings at the top of the generated page
+				
 		out.print("<H1>Processing request for Job#: " + taskNumber + "</H1>");
 		out.print("<H3>Document Title: " + title + "</H3>");
 		
-		
-		//Output some useful information for you (yes YOU!)
+		out.println("<p>Processing...</p>");
 		out.print("<div id=\"r\"></div>");
-		out.print("<font color=\"#993333\"><b>");
-		out.print("<br>This servlet should only be responsible for handling client request and returning responses. Everything else should be handled by different objects.");
-		out.print("Note that any variables declared inside this doGet() method are thread safe. Anything defined at a class level is shared between HTTP requests.");				
-		out.print("</b></font>");
-		
-		out.print("<h3>Compiling and Packaging this Application</h3>");
-		out.print("Place any servlets or Java classes in the WEB-INF/classes directory. Alternatively package "); 
-		out.print("these resources as a JAR archive in the WEB-INF/lib directory using by executing the ");  
-		out.print("following command from the WEB-INF/classes directory jar -cf my-library.jar *");
-		
-		out.print("<ol>");
-		out.print("<li><b>Compile on Mac/Linux:</b> javac -cp .:$TOMCAT_HOME/lib/servlet-api.jar WEB-INF/classes/ie/gmit/sw/*.java");
-		out.print("<li><b>Compile on Windows:</b> javac -cp .;%TOMCAT_HOME%/lib/servlet-api.jar WEB-INF/classes/ie/gmit/sw/*.java");
-		out.print("<li><b>Build JAR Archive:</b> jar -cf jaccard.war *");
-		out.print("</ol>");
-		
-		//We can also dynamically write out a form using hidden form fields. The form itself is not
-		//visible in the browser, but the JavaScript below can see it.
+				
 		out.print("<form name=\"frmRequestDetails\" action=\"poll\">");
 		out.print("<input name=\"txtTitle\" type=\"hidden\" value=\"" + title + "\">");
 		out.print("<input name=\"frmTaskNumber\" type=\"hidden\" value=\"" + taskNumber + "\">");
@@ -171,7 +122,6 @@ public class ServiceHandler extends HttpServlet {
 		out.print("</body>");	
 		out.print("</html>");	
 		
-		//JavaScript to periodically poll the server for updates (this is ideal for an asynchronous operation)
 		out.print("<script>");
 		out.print("var wait=setTimeout(\"document.frmRequestDetails.submit();\", 10000);"); //Refresh every 10 seconds
 		out.print("</script>");
